@@ -1,0 +1,15 @@
+
+# Compiled Java files
+*.class
+
+# Build output
+out/
+build/
+dist/
+
+# VS Code local settings
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db
