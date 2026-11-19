@@ -29,7 +29,7 @@ public class Game {
             throw new IllegalStateException("Players can only join before first round");
         }
 
-        if (player == nul) {
+        if (player == null) {
             throw new IllegalArgumentException("Player can not be null");
         }
 
@@ -48,7 +48,7 @@ public class Game {
     }
 
     public void startRound() {
-        if (players.size() < 2 || player.size() > 4) {
+        if (players.size() < 2 || players.size() > 4) {
             throw new IllegalStateException("The game requires at least 2 players");
         }
 
