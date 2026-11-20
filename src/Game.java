@@ -1,3 +1,4 @@
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +10,7 @@ public class Game {
     }
 
     private final List<Player> players;
-    private final Hand dealerHand;
+    private final Dealer dealer;
 
     private Deck deck;
     private int currentPlayerIndex;
@@ -17,7 +18,7 @@ public class Game {
 
     public Game() {
         players = new ArrayList<>();
-        dealerHand = new Hand();
+        dealer = new Dealer();
 
         deck = new Deck();
         currentPlayerIndex = -1;
@@ -30,17 +31,16 @@ public class Game {
         }
 
         if (player == null) {
-            throw new IllegalArgumentException("Player can not be null");
+            throw new IllegalArgumentException("Player cannot be null");
         }
 
         if (players.size() >= 4) {
             throw new IllegalStateException("The game is full");
         }
 
-        //Rethink this to get unique player id
         for (Player existing : players) {
             if (existing.getId().equals(player.getId())) {
-                throw new IllegalArgumentException("Player ID allready exists");
+                throw new IllegalArgumentException("Player ID already exists");
             }
         }
 
@@ -55,23 +55,22 @@ public class Game {
         if (state == State.Player_Turns) {
             throw new IllegalStateException("The current round is still running");
         }
-    
 
         deck = new Deck();
-        dealerHand.clear();
+        dealer.newRound();
         currentPlayerIndex = -1;
 
         for (Player player : players) {
             player.newRound();
         }
 
-        //Dealing cards to all players
+        // Deal two cards to each player and the dealer
         for (int i = 0; i < 2; i++) {
             for (Player player : players) {
                 player.getHand().addCard(deck.drawCard());
             }
 
-            dealerHand.addCard(deck.drawCard());
+            dealer.getHand().addCard(deck.drawCard());
         }
 
         state = State.Player_Turns;
@@ -81,14 +80,13 @@ public class Game {
     public void hit() {
         Player player = getCurrentPlayer();
 
-        if(player == null || !player.canHit()) {
-            throw new IllegalStateException("You can not hit");
+        if (player == null || !player.canHit()) {
+            throw new IllegalStateException("You cannot hit");
         }
 
         player.getHand().addCard(deck.drawCard());
 
-        //Verifying if it s blackjack or bust
-        if(!player.canHit()) {
+        if (!player.canHit()) {
             advanceTurn();
         }
     }
@@ -107,10 +105,10 @@ public class Game {
     private void advanceTurn() {
         int nextIndex = currentPlayerIndex + 1;
 
-        while(nextIndex < players.size()) {
+        while (nextIndex < players.size()) {
             Player player = players.get(nextIndex);
 
-            if(player.canHit()) {
+            if (player.canHit()) {
                 currentPlayerIndex = nextIndex;
                 return;
             }
@@ -118,14 +116,17 @@ public class Game {
             nextIndex++;
         }
 
-        //All players turn finished
+        // All players have finished their turns
         currentPlayerIndex = -1;
         playDealerTurn();
     }
 
     private void playDealerTurn() {
-        while (dealerHand.getValue() < 17 && !dealerHand.Bust() && !dealerHand.hasTwentyOne()) {
-            dealerHand.addCard(deck.drawCard());
+        while (dealer.getHand().getValue() < 17
+                && !dealer.getHand().Bust()
+                && !dealer.getHand().hasTwentyOne()) {
+
+            dealer.getHand().addCard(deck.drawCard());
         }
 
         state = State.Round_Over;
@@ -137,6 +138,8 @@ public class Game {
         }
 
         List<String> results = new ArrayList<>();
+
+        Hand dealerHand = dealer.getHand();
 
         for (Player player : players) {
             Hand playerHand = player.getHand();
@@ -167,6 +170,7 @@ public class Game {
         if (state != State.Player_Turns || currentPlayerIndex < 0) {
             return null;
         }
+
         return players.get(currentPlayerIndex);
     }
 
@@ -175,11 +179,14 @@ public class Game {
     }
 
     public Hand getDealerHand() {
-        return dealerHand;
+        return dealer.getHand();
+    }
+
+    public Dealer getDealer() {
+        return dealer;
     }
 
     public State getState() {
         return state;
     }
-
 }
