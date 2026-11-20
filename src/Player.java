@@ -1,38 +1,22 @@
-public class Player {
+public class Player extends GameParticipant {
     private final String id;
-    private final String name;
-    private final Hand hand;
-
     private boolean hasStood;
     private boolean connected;
 
     public Player(String id, String name) {
-        if (id == null) {
-            throw new IllegalArgumentException("Player ID can not be empty");
-        }
+        super(name);
 
-        if (name == null) {
-            throw new IllegalArgumentException("Player must select a name");
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Player ID cannot be empty.");
         }
 
         this.id = id;
-        this.name = name;
-        this.hand = new Hand();
-
         this.hasStood = false;
         this.connected = true;
     }
 
     public String getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Hand getHand() {
-        return hand;
     }
 
     public boolean hasStood() {
@@ -45,8 +29,8 @@ public class Player {
 
     public boolean canHit() {
         return !hasStood
-                && !hand.Bust()
-                && !hand.hasTwentyOne();
+                && !getHand().Bust()
+                && !getHand().hasTwentyOne();
     }
 
     public void stand() {
@@ -57,13 +41,14 @@ public class Player {
         this.connected = connected;
     }
 
+    @Override
     public void newRound() {
-        hand.clear();
+        super.newRound();
         hasStood = false;
     }
 
-    @Override 
+    @Override
     public String toString() {
-        return name;
+        return getName();
     }
 }
