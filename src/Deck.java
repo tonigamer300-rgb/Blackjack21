@@ -32,5 +32,4 @@ public class Deck {
     public int remainingCards() {
         return cards.size();
     }
-
 }
